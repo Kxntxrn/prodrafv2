@@ -7,8 +7,10 @@ const itemValidation = require('../../validations/item.validation');
 
 router.get('/', authMiddleware, itemController.getAllItems);
 router.get('/:id', authMiddleware, itemController.getItemById);
-router.post('/', authMiddleware, validate(itemValidation.createItem), itemController.createItem);
-router.put('/:id', authMiddleware, validate(itemValidation.updateItem), itemController.updateItem);
-router.delete('/:id', authMiddleware, itemController.deleteItem);
+
+// Admin-only endpoints
+router.post('/', authMiddleware, authMiddleware.checkAdmin, validate(itemValidation.createItem), itemController.createItem);
+router.put('/:id', authMiddleware, authMiddleware.checkAdmin, validate(itemValidation.updateItem), itemController.updateItem);
+router.delete('/:id', authMiddleware, authMiddleware.checkAdmin, itemController.deleteItem);
 
 module.exports = router;

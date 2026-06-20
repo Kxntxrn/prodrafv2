@@ -1,17 +1,54 @@
 const mongoose = require('mongoose');
 
-const BorrowSchema = new mongoose.Schema({
-  itemId: { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
-  userId: { type: String, required: true }, // Firebase UID
-  borrowedDate: { type: Date, default: Date.now },
-  dueDate: { type: Date, required: true },
-  returnedDate: { type: Date },
-  status: { 
-    type: String, 
-    enum: ['BORROWED', 'RETURNED', 'OVERDUE'], 
-    default: 'BORROWED' 
+const BorrowingSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
   },
-  fine: { type: Number, default: 0 }, // ค่าปรับ (ถ้ามี)
+  firebaseUid: {
+    type: String,
+    required: true,
+  },
+  items: [
+    {
+      itemName: {
+        type: String,
+        required: true,
+      },
+      quantity: {
+        type: Number,
+        required: true,
+        min: 1,
+      },
+      serialNumber: String,
+      condition: String,
+    },
+  ],
+  borrowDate: {
+    type: Date,
+    required: true,
+  },
+  expectedReturnDate: {
+    type: Date,
+    required: true,
+  },
+  actualReturnDate: Date,
+  reason: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected', 'borrowed', 'returned', 'overdue'],
+    default: 'pending',
+  },
+  approvedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  approvedAt: Date,
+  notes: String,
 }, { timestamps: true });
 
-module.exports = mongoose.model('Borrow', BorrowSchema);
+module.exports = mongoose.model('Borrowing', BorrowingSchema);
