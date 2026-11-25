@@ -1,0 +1,73 @@
+backend/
+├── src/
+│   ├── config/                 # ไฟล์ตั้งค่าทั้งหมด
+│   │   ├── firebase.js        # ตั้งค่า Firebase Admin SDK
+│   │   ├── mongodb.js         # ตั้งค่าเชื่อมต่อ MongoDB
+│   │   └── env.js             # กำหนด Environment Variables (ใช้ dotenv)
+│   │
+│   ├── models/                 # Schema ของ MongoDB (ใช้ Mongoose)
+│   │   ├── User.model.js      # เก็บข้อมูลเพิ่มเติมของผู้ใช้ (นอกจาก Firebase Auth)
+│   │   ├── Item.model.js      # Schema สินค้า/อุปกรณ์ที่ให้ยืม
+│   │   ├── Borrow.model.js    # Schema บันทึกการยืม-คืน
+│   │   └── Category.model.js  # Schema หมวดหมู่สินค้า (ถ้ามี)
+│   │
+│   ├── middlewares/            # ตัวกลางระหว่าง Request กับ Response
+│   │   ├── auth.middleware.js # ตรวจสอบ Firebase ID Token (Middleware หลัก)
+│   │   ├── error.middleware.js # จัดการ Error แบบรวมศูนย์
+│   │   ├── validation.middleware.js # ตรวจสอบข้อมูลก่อนเข้า Controller (ใช้ Joi หรือ Zod)
+│   │   └── rateLimit.middleware.js # จำกัดจำนวน Request (กัน DDoS)
+│   │
+│   ├── controllers/            # ตัวจัดการ Logic ของแต่ละฟีเจอร์
+│   │   ├── auth.controller.js # (ถ้ามี) จัดการเรื่องล็อกอินเพิ่มเติม
+│   │   ├── item.controller.js # CRUD สินค้า, ค้นหาสินค้า, เช็คสถานะ
+│   │   ├── borrow.controller.js # ทำการยืม, คืน, ประวัติการยืม
+│   │   ├── user.controller.js # จัดการโปรไฟล์ผู้ใช้, ประวัติการยืมของแต่ละคน
+│   │   └── report.controller.js # ฟังก์ชันรายงาน/สถิติ (aggregation)
+│   │
+│   ├── services/               # Business Logic ที่ซับซ้อน (แยกจาก Controller)
+│   │   ├── item.service.js    # ตรวจสอบว่าสินค้าพร้อมยืมมั้ย, อัปเดตจำนวน
+│   │   ├── borrow.service.js  # Logic การยืม: เช็ควันคืน, คำนวณค่าปรับ
+│   │   ├── notification.service.js # ระบบแจ้งเตือน (ถ้ามี)
+│   │   └── report.service.js  # สร้าง报表/สถิติ (aggregation pipeline)
+│   │
+│   ├── routes/                 # กำหนดเส้นทาง API
+│   │   ├── v1/                # Version 1 ของ API
+│   │   │   ├── index.js       # รวม Routes ทั้งหมด
+│   │   │   ├── item.routes.js
+│   │   │   ├── borrow.routes.js
+│   │   │   ├── user.routes.js
+│   │   │   └── report.routes.js
+│   │   └── index.js           # route หลัก
+│   │
+│   ├── utils/                  # ฟังก์ชันช่วยเหลือทั่วไป
+│   │   ├── response.util.js   # ฟังก์ชันจัดรูปแบบ Response (success, error)
+│   │   ├── date.util.js       # ฟังก์ชันจัดการวันที่ (คำนวณวันครบกำหนด, ค่าปรับ)
+│   │   ├── validator.util.js  # ฟังก์ชันตรวจสอบข้อมูลเฉพาะ (เช่น ตรวจสอบรหัสบัตร ปชช.)
+│   │   └── logger.util.js     # ตั้งค่าระบบ Log (ใช้ Winston หรือ Pino)
+│   │
+│   ├── validations/            # Schema สำหรับตรวจสอบ Request Body (ใช้ Joi/Zod)
+│   │   ├── item.validation.js
+│   │   ├── borrow.validation.js
+│   │   └── user.validation.js
+│   │
+│   ├── constants/              # ค่าคงที่ที่ใช้ทั่วโปรเจกต์
+│   │   ├── status.constants.js # สถานะสินค้า: AVAILABLE, BORROWED, MAINTENANCE
+│   │   ├── role.constants.js   # สิทธิ์ผู้ใช้: ADMIN, USER, STAFF
+│   │   └── error.constants.js  # รหัส Error ต่างๆ
+│   │
+│   ├── seeders/                # ข้อมูลเริ่มต้น (ตอนตั้งค่าระบบครั้งแรก)
+│   │   ├── categories.seeder.js # สร้างหมวดหมู่เริ่มต้น
+│   │   └── admin.seeder.js      # สร้าง Admin คนแรก
+│   │
+│   └── app.js                  # ไฟล์หลัก Express App (รวม Middleware, Routes)
+│
+├── tests/                      # โฟลเดอร์ทดสอบ
+│   ├── unit/                   # Unit Test (ทดสอบฟังก์ชันเดี่ยว)
+│   └── integration/            # Integration Test (ทดสอบ API ทั้งเส้น)
+│
+├── .env.example                # ตัวอย่าง Environment Variables
+├── .gitignore
+├── package.json
+├── eslint.config.js            # (หรือ .eslintrc.js) ตั้งค่า Linter
+├── prettier.config.js          # (หรือ .prettierrc) ตั้งค่า Code Formatter
+└── README.md

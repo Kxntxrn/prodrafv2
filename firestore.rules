@@ -1,0 +1,315 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {uid} (Firebase Auth UID)
+    // Fields:
+    //   - _id: string (optional, <= 128 chars)
+    //   - firebaseUid: string (required, immutable, == uid, <= 128 chars)
+    //   - email: string (required, == auth token email on user write, <= 254 chars)
+    //   - displayName: string (required, 1..120 chars)
+    //   - role: string (required, 'user' | 'admin'; 'user' on self-create, immutable for non-admins)
+    //   - phone: string (optional, <= 40 chars)
+    //   - department: string (optional, <= 120 chars)
+    //   - createdAt: string (optional, immutable for non-admins, <= 64 chars)
+    //   - updatedAt: string (optional, <= 64 chars)
+    //
+    // Collection: items
+    // Document ID: {id}
+    // Fields:
+    //   - name: string (required, 1..200 chars)
+    //   - category: string (required, 'equipment' | 'tool' | 'book' | 'device' | 'other')
+    //   - totalQuantity: number (required, 0..1000000)
+    //   - availableQuantity: number (required, 0..1000000)
+    //   - unit: string (required, 1..50 chars)
+    //   - description: string (optional, <= 2000 chars)
+    //   - location: string (optional, <= 200 chars)
+    //   - status: string (required, 'active' | 'maintenance' | 'discontinued')
+    //   - createdAt: string (optional, <= 64 chars)
+    //   - updatedAt: string (optional, <= 64 chars)
+    //
+    // Collection: borrowings
+    // Document ID: {id}
+    // Fields:
+    //   - userId: map (required, allowed keys: _id, firebaseUid, email, displayName, role, phone, department)
+    //   - firebaseUid: string (required, == request.auth.uid on create, <= 128 chars)
+    //   - items: list (required, 1..50 items)
+    //   - borrowDate: string (required, 1..64 chars)
+    //   - expectedReturnDate: string (required, 1..64 chars)
+    //   - actualReturnDate: string (optional, <= 64 chars)
+    //   - reason: string (required, 1..1000 chars)
+    //   - status: string (required, 'pending' on create; 'pending' | 'approved' | 'rejected' | 'borrowed' | 'returned' | 'overdue')
+    //   - approvedBy: map (optional, allowed keys: _id, displayName, email)
+    //   - approvedAt: string (optional, <= 64 chars)
+    //   - notes: string (optional, <= 1000 chars)
+    //   - createdAt: string (required, 1..64 chars)
+    //   - updatedAt: string (optional, <= 64 chars)
+    //
+    // Collection: auditLogs
+    // Document ID: {id}
+    // Fields:
+    //   - action: string (required, 1..100 chars)
+    //   - details: string (required, 1..2000 chars)
+    //   - performedBy: string (required, == auth token email, 1..254 chars)
+    //   - createdAt: string (required, 1..64 chars)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    function hasRequiredFields(data, fields) {
+      return data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(data, fields) {
+      return data.keys().hasOnly(fields);
+    }
+
+    function isValidString(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    function isValidOptionalString(data, field, minLen, maxLen) {
+      return !(field in data) || isValidString(data[field], minLen, maxLen);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return hasOnlyAllowedFields(data, [
+          '_id',
+          'firebaseUid',
+          'email',
+          'displayName',
+          'role',
+          'phone',
+          'department',
+          'createdAt',
+          'updatedAt'
+        ])
+        && hasRequiredFields(data, ['firebaseUid', 'email', 'displayName', 'role'])
+        && isValidOptionalString(data, '_id', 1, 128)
+        && isValidString(data.firebaseUid, 1, 128)
+        && isValidString(data.email, 1, 254)
+        && isValidString(data.displayName, 1, 120)
+        && data.role in ['user', 'admin']
+        && isValidOptionalString(data, 'phone', 0, 40)
+        && isValidOptionalString(data, 'department', 0, 120)
+        && isValidOptionalString(data, 'createdAt', 1, 64)
+        && isValidOptionalString(data, 'updatedAt', 1, 64);
+    }
+
+    function isValidItem(data) {
+      return hasOnlyAllowedFields(data, [
+          'name',
+          'category',
+          'totalQuantity',
+          'availableQuantity',
+          'unit',
+          'description',
+          'location',
+          'status',
+          'createdAt',
+          'updatedAt'
+        ])
+        && hasRequiredFields(data, [
+          'name',
+          'category',
+          'totalQuantity',
+          'availableQuantity',
+          'unit',
+          'status'
+        ])
+        && isValidString(data.name, 1, 200)
+        && data.category in ['equipment', 'tool', 'book', 'device', 'other']
+        && data.totalQuantity is number && data.totalQuantity >= 0 && data.totalQuantity <= 1000000
+        && data.availableQuantity is number && data.availableQuantity >= 0 && data.availableQuantity <= 1000000
+        && isValidString(data.unit, 1, 50)
+        && isValidOptionalString(data, 'description', 0, 2000)
+        && isValidOptionalString(data, 'location', 0, 200)
+        && data.status in ['active', 'maintenance', 'discontinued']
+        && isValidOptionalString(data, 'createdAt', 1, 64)
+        && isValidOptionalString(data, 'updatedAt', 1, 64);
+    }
+
+    function isValidUnit(data, itemId) {
+      return hasOnlyAllowedFields(data, [
+          'itemId',
+          'serial',
+          'status',
+          'location',
+          'notes',
+          'qrId',
+          'createdAt',
+          'updatedAt'
+        ])
+        && hasRequiredFields(data, ['itemId', 'serial', 'status', 'qrId', 'createdAt'])
+        && data.itemId == itemId
+        && isValidString(data.serial, 1, 200)
+        && data.status in ['available', 'borrowed', 'maintenance', 'lost']
+        && isValidString(data.qrId, 1, 128)
+        && isValidOptionalString(data, 'location', 0, 200)
+        && isValidOptionalString(data, 'notes', 0, 1000)
+        && isValidString(data.createdAt, 1, 64)
+        && isValidOptionalString(data, 'updatedAt', 1, 64);
+    }
+
+    function isValidBorrowing(data) {
+      return hasOnlyAllowedFields(data, [
+          'userId',
+          'firebaseUid',
+          'items',
+          'borrowDate',
+          'expectedReturnDate',
+          'actualReturnDate',
+          'reason',
+          'status',
+          'approvedBy',
+          'approvedAt',
+          'notes',
+          'createdAt',
+          'updatedAt'
+        ])
+        && hasRequiredFields(data, [
+          'userId',
+          'firebaseUid',
+          'items',
+          'borrowDate',
+          'expectedReturnDate',
+          'reason',
+          'status',
+          'createdAt'
+        ])
+        && data.userId is map
+        && hasOnlyAllowedFields(data.userId, [
+          '_id',
+          'firebaseUid',
+          'email',
+          'displayName',
+          'role',
+          'phone',
+          'department'
+        ])
+        && isValidString(data.userId.email, 1, 254)
+        && isValidString(data.firebaseUid, 1, 128)
+        && data.items is list
+        && data.items.size() > 0
+        && data.items.size() <= 50
+        && data.items[0] is map
+        && hasOnlyAllowedFields(data.items[0], [
+          '_id',
+          'itemId',
+          'itemName',
+          'quantity',
+          'serialNumber',
+          'condition'
+        ])
+        && isValidString(data.borrowDate, 1, 64)
+        && isValidString(data.expectedReturnDate, 1, 64)
+        && isValidOptionalString(data, 'actualReturnDate', 1, 64)
+        && isValidString(data.reason, 1, 1000)
+        && data.status in ['pending', 'approved', 'rejected', 'borrowed', 'returned', 'overdue']
+        && (!('approvedBy' in data) || (
+          data.approvedBy is map
+          && hasOnlyAllowedFields(data.approvedBy, ['_id', 'displayName', 'email'])
+        ))
+        && isValidOptionalString(data, 'approvedAt', 1, 64)
+        && isValidOptionalString(data, 'notes', 0, 1000)
+        && isValidString(data.createdAt, 1, 64)
+        && isValidOptionalString(data, 'updatedAt', 1, 64);
+    }
+
+    function isValidAuditLog(data) {
+      return hasOnlyAllowedFields(data, ['action', 'details', 'performedBy', 'createdAt'])
+        && hasRequiredFields(data, ['action', 'details', 'performedBy', 'createdAt'])
+        && isValidString(data.action, 1, 100)
+        && isValidString(data.details, 1, 2000)
+        && isValidString(data.performedBy, 1, 254)
+        && isValidString(data.createdAt, 1, 64);
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid)
+        && request.resource.data.firebaseUid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.role == 'user'
+        && isValidUser(request.resource.data);
+      allow update: if (isAdmin()
+        || (isOwner(uid)
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.firebaseUid == resource.data.firebaseUid
+          && request.resource.data.email == request.auth.token.email
+          && (!('createdAt' in resource.data) || request.resource.data.createdAt == resource.data.createdAt)))
+        && isValidUser(request.resource.data);
+      allow delete: if false;
+    }
+
+    match /items/{id} {
+      allow read: if signedIn();
+      allow create: if isAdmin() && isValidItem(request.resource.data);
+      allow update: if isAdmin() && isValidItem(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /items/{itemId}/units/{unitId} {
+      allow read: if signedIn();
+      allow create: if isAdmin()
+        && isValidUnit(request.resource.data, itemId);
+      allow update: if isAdmin()
+        && isValidUnit(request.resource.data, itemId);
+      allow delete: if isAdmin();
+    }
+
+    match /borrowings/{id} {
+      allow read: if signedIn() && (resource.data.firebaseUid == request.auth.uid || isAdmin());
+      allow create: if signedIn()
+        && request.resource.data.firebaseUid == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.userId is map
+        && request.resource.data.userId.email == request.auth.token.email
+        && request.resource.data.items is list
+        && request.resource.data.items.size() > 0
+        && isValidBorrowing(request.resource.data);
+      allow update: if isAdmin() && isValidBorrowing(request.resource.data);
+      allow delete: if false;
+    }
+
+    match /auditLogs/{id} {
+      allow read: if isAdmin();
+      allow create: if signedIn()
+        && request.resource.data.performedBy == request.auth.token.email
+        && isValidAuditLog(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    // Default deny all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
