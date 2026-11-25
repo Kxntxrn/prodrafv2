@@ -57,7 +57,9 @@ export function MyBorrowingsPage({ borrowings }: MyBorrowingsPageProps) {
                 )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span className={getStatusClass(borrow.status)}>{getStatusText(borrow.status)}</span>
+                <span className={getStatusClass(borrow.status)}>
+                  {getStatusText(borrow.status)}
+                </span>
               </div>
             </div>
           ))}

@@ -99,13 +99,21 @@ export function QRScanner({ onResult, onClose }: QRScannerProps) {
       <div className="modal-content" style={{ maxWidth: '420px' }}>
         <div className="modal-header">
           <h3 className="modal-title">📷 สแกน QR Code</h3>
-          <button className="close-btn" onClick={() => { stopStream(); onClose(); }}>
+          <button
+            className="close-btn"
+            onClick={() => {
+              stopStream();
+              onClose();
+            }}
+          >
             ×
           </button>
         </div>
 
         {cameraError ? (
-          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-error, #f87171)' }}>
+          <div
+            style={{ padding: '24px', textAlign: 'center', color: 'var(--color-error, #f87171)' }}
+          >
             <div style={{ fontSize: '36px', marginBottom: '12px' }}>📵</div>
             <p>{cameraError}</p>
           </div>

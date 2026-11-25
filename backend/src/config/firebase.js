@@ -19,13 +19,17 @@ try {
       projectId: env.FIREBASE_PROJECT_ID,
     });
     firebaseAdmin = admin;
-    console.log(`✅ Firebase Admin initialized with Project ID: ${env.FIREBASE_PROJECT_ID} (Token verification only)`);
+    console.log(
+      `✅ Firebase Admin initialized with Project ID: ${env.FIREBASE_PROJECT_ID} (Token verification only)`,
+    );
   } else {
     throw new Error('No Firebase configuration provided in env');
   }
 } catch (error) {
-  console.log(`⚠️ Firebase Admin not configured or failed to initialize, using Mock: ${error.message}`);
-  
+  console.log(
+    `⚠️ Firebase Admin not configured or failed to initialize, using Mock: ${error.message}`,
+  );
+
   // Create a mock admin SDK that also handles real Firebase JWT tokens via decode
   firebaseAdmin = {
     auth: () => ({
@@ -59,8 +63,8 @@ try {
           }
         }
         throw new Error('Invalid token');
-      }
-    })
+      },
+    }),
   };
 }
 
@@ -68,9 +72,10 @@ try {
 // When Firebase Admin is initialized with Project ID only (no Service Account),
 // verifyIdToken will fail on real Google tokens. This fallback decodes the JWT
 // payload directly so Google login still works in dev without a full SA key.
-const originalAuth = firebaseAdmin && typeof firebaseAdmin.auth === 'function'
-  ? firebaseAdmin.auth.bind(firebaseAdmin)
-  : null;
+const originalAuth =
+  firebaseAdmin && typeof firebaseAdmin.auth === 'function'
+    ? firebaseAdmin.auth.bind(firebaseAdmin)
+    : null;
 
 firebaseAdmin.auth = () => {
   const authInstance = originalAuth
@@ -86,7 +91,7 @@ firebaseAdmin.auth = () => {
           if (token && token.split('.').length === 3) {
             try {
               const payload = JSON.parse(
-                Buffer.from(token.split('.')[1], 'base64').toString('utf8')
+                Buffer.from(token.split('.')[1], 'base64').toString('utf8'),
               );
               if (payload.sub && payload.email) {
                 console.log(`⚠️  JWT decode fallback (no Service Account). User: ${payload.email}`);
@@ -114,10 +119,12 @@ firebaseAdmin.auth = () => {
       if (token && token.split('.').length === 3) {
         try {
           const payload = JSON.parse(
-            Buffer.from(token.split('.')[1], 'base64url').toString('utf8')
+            Buffer.from(token.split('.')[1], 'base64url').toString('utf8'),
           );
           if (payload.sub && payload.email) {
-            console.log(`⚠️  Token accepted via JWT decode (no Service Account). User: ${payload.email}`);
+            console.log(
+              `⚠️  Token accepted via JWT decode (no Service Account). User: ${payload.email}`,
+            );
             return {
               uid: payload.sub,
               email: payload.email,

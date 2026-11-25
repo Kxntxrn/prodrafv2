@@ -20,7 +20,9 @@ export function InventoryPage({ items, onSelectItem }: InventoryPageProps) {
       <div className="page-header">
         <div>
           <h1 className="page-title">รายการอุปกรณ์/สินค้า</h1>
-          <p className="page-subtitle">แสดงพัสดุอุปกรณ์ทั้งหมดที่มีในระบบ รวมถึง &quot;เอสแดง&quot; 2 ตัว</p>
+          <p className="page-subtitle">
+            แสดงพัสดุอุปกรณ์ทั้งหมดที่มีในระบบ รวมถึง &quot;เอสแดง&quot; 2 ตัว
+          </p>
         </div>
         <div className="search-filter-bar">
           <input

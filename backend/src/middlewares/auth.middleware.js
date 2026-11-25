@@ -20,13 +20,10 @@ const authMiddleware = async (req, res, next) => {
       // Fallback: treat token as uid for mock purposes
       decodedToken = { uid: token, email: 'mock@example.com', name: 'Mock User' };
     }
-    
+
     // Find or create user in MongoDB to link with Firebase Auth
     let user = await User.findOne({
-      $or: [
-        { firebaseUid: decodedToken.uid },
-        { email: decodedToken.email }
-      ]
+      $or: [{ firebaseUid: decodedToken.uid }, { email: decodedToken.email }],
     });
 
     if (!user) {
@@ -62,9 +59,12 @@ const authMiddleware = async (req, res, next) => {
   } catch (error) {
     console.error('Authentication Error:', error.message, 'Code:', error.code);
     // If Firebase token is expired, suggest re-authentication
-    const message = error.code === 'auth/id-token-expired' ? 'Token หมดอายุ โปรดลงชื่อเข้าใหม่' : 'Token ไม่ถูกต้องหรือหมดอายุ';
-    return res.status(403).json({ 
-      success: false, 
+    const message =
+      error.code === 'auth/id-token-expired'
+        ? 'Token หมดอายุ โปรดลงชื่อเข้าใหม่'
+        : 'Token ไม่ถูกต้องหรือหมดอายุ';
+    return res.status(403).json({
+      success: false,
       message,
     });
   }

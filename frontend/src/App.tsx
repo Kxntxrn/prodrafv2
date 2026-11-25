@@ -311,17 +311,14 @@ function App() {
       )}
 
       {user && (
-        <Navbar
-          user={user}
-          currentPage={route.page}
-          onNavigate={goTo}
-          onLogout={handleLogout}
-        />
+        <Navbar user={user} currentPage={route.page} onNavigate={goTo} onLogout={handleLogout} />
       )}
 
       <main className="main-content">
         {loading && (
-          <div style={{ textAlign: 'center', padding: '12px', color: 'var(--color-primary-light)' }}>
+          <div
+            style={{ textAlign: 'center', padding: '12px', color: 'var(--color-primary-light)' }}
+          >
             กำลังโหลดข้อมูล...
           </div>
         )}
@@ -348,9 +345,7 @@ function App() {
           />
         )}
 
-        {route.page === 'my-borrowings' && user && (
-          <MyBorrowingsPage borrowings={myBorrowings} />
-        )}
+        {route.page === 'my-borrowings' && user && <MyBorrowingsPage borrowings={myBorrowings} />}
 
         {route.page === 'admin' && user?.role === 'admin' && (
           <AdminPage

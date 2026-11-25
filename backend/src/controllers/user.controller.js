@@ -5,7 +5,7 @@ const { successResponse, errorResponse } = require('../utils/response.util');
 const getCurrentUser = async (req, res, next) => {
   try {
     const user = req.user.dbUser;
-    
+
     // Log user login activity
     await AuditLog.create({
       action: 'LOGIN',
@@ -32,16 +32,12 @@ const updateUserRole = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { role } = req.body;
-    
+
     if (!['user', 'admin'].includes(role)) {
       return errorResponse(res, 'ระบุตำแหน่งบทบาทสิทธิ์ไม่ถูกต้อง', 400);
     }
 
-    const user = await User.findByIdAndUpdate(
-      id,
-      { role },
-      { new: true }
-    );
+    const user = await User.findByIdAndUpdate(id, { role }, { new: true });
 
     if (!user) {
       return errorResponse(res, 'ไม่พบข้อมูลผู้ใช้นี้ในระบบ', 404);

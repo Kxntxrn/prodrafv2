@@ -16,7 +16,9 @@ const errorMiddleware = (err, req, res, next) => {
   // Handle Mongoose validation error
   if (err.name === 'ValidationError') {
     statusCode = 400;
-    message = Object.values(err.errors).map(val => val.message).join(', ');
+    message = Object.values(err.errors)
+      .map((val) => val.message)
+      .join(', ');
   }
 
   // Handle CastError (invalid ObjectId)
@@ -25,7 +27,12 @@ const errorMiddleware = (err, req, res, next) => {
     message = `รูปแบบรหัส ID (${err.value}) ไม่ถูกต้อง`;
   }
 
-  return errorResponse(res, message, statusCode, process.env.NODE_ENV === 'development' ? err : null);
+  return errorResponse(
+    res,
+    message,
+    statusCode,
+    process.env.NODE_ENV === 'development' ? err : null,
+  );
 };
 
 module.exports = errorMiddleware;

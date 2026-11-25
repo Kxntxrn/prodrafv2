@@ -157,14 +157,14 @@ export function AdminPage({
                         ))}
                       </td>
                       <td>
-                        <div style={{ fontSize: '12px' }}>เริ่ม: {formatDate(borrow.borrowDate)}</div>
+                        <div style={{ fontSize: '12px' }}>
+                          เริ่ม: {formatDate(borrow.borrowDate)}
+                        </div>
                         <div style={{ fontSize: '12px', color: 'var(--color-warning)' }}>
                           คืน: {formatDate(borrow.expectedReturnDate)}
                         </div>
                       </td>
-                      <td
-                        style={{ fontSize: '13px', maxWidth: '200px', wordBreak: 'break-word' }}
-                      >
+                      <td style={{ fontSize: '13px', maxWidth: '200px', wordBreak: 'break-word' }}>
                         {borrow.reason}
                       </td>
                       <td>
@@ -216,9 +216,7 @@ export function AdminPage({
                             </button>
                           )}
                           {(borrow.status === 'returned' || borrow.status === 'rejected') && (
-                            <span
-                              style={{ color: 'var(--color-text-muted)', fontSize: '12px' }}
-                            >
+                            <span style={{ color: 'var(--color-text-muted)', fontSize: '12px' }}>
                               เสร็จสิ้นการทำรายการ
                             </span>
                           )}
@@ -262,11 +260,7 @@ export function AdminPage({
                 {items.map((item) => (
                   <tr
                     key={item._id}
-                    style={
-                      item.name === 'เอสแดง'
-                        ? { background: 'rgba(139, 92, 246, 0.04)' }
-                        : {}
-                    }
+                    style={item.name === 'เอสแดง' ? { background: 'rgba(139, 92, 246, 0.04)' } : {}}
                   >
                     <td>
                       <div
@@ -342,10 +336,7 @@ export function AdminPage({
                         >
                           🏷️ Units
                         </button>
-                        <button
-                          className="btn-sm btn-edit"
-                          onClick={() => onEditItem(item)}
-                        >
+                        <button className="btn-sm btn-edit" onClick={() => onEditItem(item)}>
                           แก้ไข
                         </button>
                         <button
@@ -380,16 +371,13 @@ export function AdminPage({
                 <div key={log._id} className="log-item">
                   <div className="log-meta-group">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span
-                        className={`action-badge ${log.action.toLowerCase().split('_')[0]}`}
-                      >
+                      <span className={`action-badge ${log.action.toLowerCase().split('_')[0]}`}>
                         {log.action}
                       </span>
                       <span className="log-details">{log.details}</span>
                     </div>
                     <span className="log-actor">
-                      ดำเนินการโดย:{' '}
-                      <span style={{ color: 'white' }}>{log.performedBy}</span>
+                      ดำเนินการโดย: <span style={{ color: 'white' }}>{log.performedBy}</span>
                     </span>
                   </div>
                   <span className="log-date">{formatDate(log.createdAt)}</span>
@@ -412,10 +400,7 @@ export function AdminPage({
 
       {/* ───────── QR SCANNER ───────── */}
       {showQRScanner && (
-        <QRScanner
-          onResult={handleScanResult}
-          onClose={() => setShowQRScanner(false)}
-        />
+        <QRScanner onResult={handleScanResult} onClose={() => setShowQRScanner(false)} />
       )}
 
       {/* ───────── SCAN RESULT CARD ───────── */}
@@ -453,14 +438,16 @@ export function AdminPage({
                     {scanResult.unit.serial}
                   </div>
                   <div
-                    style={{ fontSize: '14px', color: 'var(--color-text-secondary)', marginTop: '4px' }}
+                    style={{
+                      fontSize: '14px',
+                      color: 'var(--color-text-secondary)',
+                      marginTop: '4px',
+                    }}
                   >
                     📦 {scanResult.itemName}
                   </div>
                   {scanResult.unit.location && (
-                    <div
-                      style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}
-                    >
+                    <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
                       📍 {scanResult.unit.location}
                     </div>
                   )}
@@ -490,10 +477,7 @@ export function AdminPage({
                   >
                     🏷️ จัดการ Units
                   </button>
-                  <button
-                    className="btn-sm btn-edit"
-                    onClick={() => setScanResult(null)}
-                  >
+                  <button className="btn-sm btn-edit" onClick={() => setScanResult(null)}>
                     ปิด
                   </button>
                 </div>

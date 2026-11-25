@@ -123,10 +123,18 @@ function asAppError(error: unknown): never {
   if (error instanceof AppError) throw error;
   const code = typeof error === 'object' && error && 'code' in error ? String(error.code) : '';
   if (code.includes('permission-denied') || code.includes('unauthenticated')) {
-    throw new AppError('Firestore ปฏิเสธสิทธิ์ — เปิดฐานข้อมูลในโปรเจกต์ qrcodeborrowdiwa แล้ว deploy rules ก่อนใช้งาน');
+    throw new AppError(
+      'Firestore ปฏิเสธสิทธิ์ — เปิดฐานข้อมูลในโปรเจกต์ qrcodeborrowdiwa แล้ว deploy rules ก่อนใช้งาน',
+    );
   }
-  if (code.includes('unavailable') || code.includes('not-found') || code.includes('failed-precondition')) {
-    throw new AppError('ยังเชื่อม Firestore ของโปรเจกต์ qrcodeborrowdiwa ไม่ได้ — สร้างฐานข้อมูล Firestore (โหมด production) ก่อน');
+  if (
+    code.includes('unavailable') ||
+    code.includes('not-found') ||
+    code.includes('failed-precondition')
+  ) {
+    throw new AppError(
+      'ยังเชื่อม Firestore ของโปรเจกต์ qrcodeborrowdiwa ไม่ได้ — สร้างฐานข้อมูล Firestore (โหมด production) ก่อน',
+    );
   }
   if (error instanceof Error) throw error;
   throw new AppError('เกิดข้อผิดพลาดจาก Firebase');
@@ -275,7 +283,9 @@ export async function createBorrowRequest(input: {
 }): Promise<void> {
   try {
     if (input.item.availableQuantity < input.quantity) {
-      throw new AppError(`สินค้า ${input.item.name} คงเหลือไม่พอ (คงเหลือ ${input.item.availableQuantity} ${input.item.unit})`);
+      throw new AppError(
+        `สินค้า ${input.item.name} คงเหลือไม่พอ (คงเหลือ ${input.item.availableQuantity} ${input.item.unit})`,
+      );
     }
     const now = new Date().toISOString();
     const ref = doc(collection(db, 'borrowings'));
@@ -318,7 +328,9 @@ export async function createBorrowRequest(input: {
 
 export async function listMyBorrowings(firebaseUid: string): Promise<Borrowing[]> {
   try {
-    const snap = await getDocs(query(collection(db, 'borrowings'), where('firebaseUid', '==', firebaseUid)));
+    const snap = await getDocs(
+      query(collection(db, 'borrowings'), where('firebaseUid', '==', firebaseUid)),
+    );
     return byNewest(snap.docs.map((row) => withId<Borrowing>(row.id, row.data())));
   } catch (error) {
     asAppError(error);
@@ -506,7 +518,9 @@ export function encodeQrContent(unit: Unit): string {
   return `${unit.itemId}::${unit._id}::${unit.serial}`;
 }
 
-export function decodeQrContent(raw: string): { itemId: string; unitId: string; serial: string } | null {
+export function decodeQrContent(
+  raw: string,
+): { itemId: string; unitId: string; serial: string } | null {
   const parts = raw.split('::');
   if (parts.length < 3) return null;
   const [itemId, unitId, ...serialParts] = parts;

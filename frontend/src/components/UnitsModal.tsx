@@ -1,12 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import {
-  listUnits,
-  addUnit,
-  updateUnit,
-  deleteUnit,
-  type Item,
-  type Unit,
-} from '../lib/db';
+import { listUnits, addUnit, updateUnit, deleteUnit, type Item, type Unit } from '../lib/db';
 import { QRCodeCard } from './QRCodeCard';
 
 interface UnitsModalProps {
@@ -297,9 +290,7 @@ export function UnitsModal({ item, actorEmail, onClose, onToast }: UnitsModalPro
                       className="form-input"
                       style={{ padding: '4px 8px', fontSize: '12px', width: 'auto' }}
                       value={unit.status}
-                      onChange={(e) =>
-                        handleUpdateStatus(unit, e.target.value as Unit['status'])
-                      }
+                      onChange={(e) => handleUpdateStatus(unit, e.target.value as Unit['status'])}
                     >
                       {STATUS_OPTIONS.map((o) => (
                         <option key={o.value} value={o.value}>
@@ -309,16 +300,11 @@ export function UnitsModal({ item, actorEmail, onClose, onToast }: UnitsModalPro
                     </select>
                     <button
                       className="btn-sm btn-edit"
-                      onClick={() =>
-                        setExpandedQR(expandedQR === unit._id ? null : unit._id)
-                      }
+                      onClick={() => setExpandedQR(expandedQR === unit._id ? null : unit._id)}
                     >
                       {expandedQR === unit._id ? 'ซ่อน QR' : '🔲 QR Code'}
                     </button>
-                    <button
-                      className="btn-sm btn-delete"
-                      onClick={() => handleDelete(unit)}
-                    >
+                    <button className="btn-sm btn-delete" onClick={() => handleDelete(unit)}>
                       ลบ
                     </button>
                   </div>

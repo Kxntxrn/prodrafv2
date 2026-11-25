@@ -36,7 +36,13 @@ export function LoginPage({ loading, onGoogleLogin }: LoginPageProps) {
             onMouseOver={(e) => (e.currentTarget.style.background = '#357ae8')}
             onMouseOut={(e) => (e.currentTarget.style.background = '#4285F4')}
           >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <path
                 d="M17.64 9.20455C17.64 8.56364 17.5827 7.94727 17.4764 7.36364H9V10.845H13.8436C13.635 11.97 13.0009 12.9232 12.0477 13.5614V15.8195H14.9564C16.6582 14.2527 17.64 11.9455 17.64 9.20455Z"
                 fill="white"

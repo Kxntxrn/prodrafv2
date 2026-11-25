@@ -60,8 +60,7 @@ async function main() {
   }
 
   const identifier = args.find(
-    (arg, index) =>
-      !arg.startsWith('--') && (keyFlagIndex === -1 || index !== keyFlagIndex + 1),
+    (arg, index) => !arg.startsWith('--') && (keyFlagIndex === -1 || index !== keyFlagIndex + 1),
   );
 
   if (!identifier) {

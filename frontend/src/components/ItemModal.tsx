@@ -5,20 +5,11 @@ interface ItemModalProps {
   editingItem: Item | null;
   loading: boolean;
   onClose: () => void;
-  onSave: (
-    fields: Omit<Item, '_id' | 'createdAt'>,
-    editingId: string | null,
-  ) => Promise<void>;
+  onSave: (fields: Omit<Item, '_id' | 'createdAt'>, editingId: string | null) => Promise<void>;
   onWarning: (message: string) => void;
 }
 
-export function ItemModal({
-  editingItem,
-  loading,
-  onClose,
-  onSave,
-  onWarning,
-}: ItemModalProps) {
+export function ItemModal({ editingItem, loading, onClose, onSave, onWarning }: ItemModalProps) {
   const [name, setName] = useState(editingItem?.name ?? '');
   const [category, setCategory] = useState<Item['category']>(editingItem?.category ?? 'other');
   const [totalQuantity, setTotalQuantity] = useState(editingItem?.totalQuantity ?? 1);

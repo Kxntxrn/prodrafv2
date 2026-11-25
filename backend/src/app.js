@@ -19,11 +19,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint (for docker health check and troubleshooting)
 app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    success: true, 
-    status: 'OK', 
+  res.status(200).json({
+    success: true,
+    status: 'OK',
     message: 'Borrowing System API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 

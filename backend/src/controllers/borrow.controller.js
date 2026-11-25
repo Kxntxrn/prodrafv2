@@ -12,7 +12,11 @@ const createBorrowRequest = async (req, res, next) => {
     for (const item of items) {
       const dbItem = await Item.findOne({ name: item.itemName });
       if (dbItem && dbItem.availableQuantity < item.quantity) {
-        return errorResponse(res, `สินค้า ${item.itemName} คงเหลือไม่พอ (คงเหลือ ${dbItem.availableQuantity} ${dbItem.unit})`, 400);
+        return errorResponse(
+          res,
+          `สินค้า ${item.itemName} คงเหลือไม่พอ (คงเหลือ ${dbItem.availableQuantity} ${dbItem.unit})`,
+          400,
+        );
       }
     }
 
@@ -26,7 +30,7 @@ const createBorrowRequest = async (req, res, next) => {
       status: 'pending',
     });
 
-    const itemsList = items.map(i => `${i.itemName} (จำนวน ${i.quantity})`).join(', ');
+    const itemsList = items.map((i) => `${i.itemName} (จำนวน ${i.quantity})`).join(', ');
     await AuditLog.create({
       action: 'SUBMIT_BORROW',
       details: `ส่งคำขอยืม: ${itemsList} | เหตุผล: ${reason}`,
@@ -45,7 +49,7 @@ const getUserBorrowings = async (req, res, next) => {
     const borrowings = await Borrowing.find({ firebaseUid })
       .sort({ createdAt: -1 })
       .populate('approvedBy', 'displayName email');
-    
+
     return successResponse(res, borrowings, 'ดึงประวัติการยืมของผู้ใช้สำเร็จ');
   } catch (error) {
     next(error);
@@ -58,7 +62,7 @@ const getAllBorrowings = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .populate('userId', 'displayName email phone department')
       .populate('approvedBy', 'displayName email');
-    
+
     return successResponse(res, borrowings, 'ดึงข้อมูลคำขอยืมทั้งหมดสำเร็จ');
   } catch (error) {
     next(error);
@@ -70,12 +74,12 @@ const updateBorrowStatus = async (req, res, next) => {
     const { id } = req.params;
     const { status, notes } = req.body;
     const adminUser = req.user.dbUser;
-    
+
     const borrowing = await Borrowing.findById(id);
     if (!borrowing) {
       return errorResponse(res, 'ไม่พบคำขอยืม', 404);
     }
-    
+
     if (status === 'approved' && borrowing.status === 'pending') {
       for (const item of borrowing.items) {
         const dbItem = await Item.findOne({ name: item.itemName });
@@ -93,7 +97,10 @@ const updateBorrowStatus = async (req, res, next) => {
     } else if (status === 'rejected') {
       borrowing.status = 'rejected';
       borrowing.notes = notes;
-    } else if (status === 'returned' && (borrowing.status === 'borrowed' || borrowing.status === 'approved')) {
+    } else if (
+      status === 'returned' &&
+      (borrowing.status === 'borrowed' || borrowing.status === 'approved')
+    ) {
       for (const item of borrowing.items) {
         const dbItem = await Item.findOne({ name: item.itemName });
         if (dbItem) {
@@ -106,17 +113,17 @@ const updateBorrowStatus = async (req, res, next) => {
     } else {
       borrowing.status = status;
     }
-    
+
     borrowing.updatedAt = new Date();
     if (notes) borrowing.notes = notes;
-    
+
     await borrowing.save();
 
     // Log action to AuditLog
-    const itemsList = borrowing.items.map(i => `${i.itemName} (จำนวน ${i.quantity})`).join(', ');
+    const itemsList = borrowing.items.map((i) => `${i.itemName} (จำนวน ${i.quantity})`).join(', ');
     let logAction = 'UPDATE_BORROW';
     let logDetails = `อัปเดตคำขอยืมสินค้า: ${itemsList} เป็นสถานะ ${status}`;
-    
+
     if (status === 'approved') {
       logAction = 'APPROVE_BORROW';
       logDetails = `อนุมัติให้ยืมสินค้า: ${itemsList} (โดยผู้ดูแลระบบ)`;
@@ -133,7 +140,7 @@ const updateBorrowStatus = async (req, res, next) => {
       details: logDetails,
       performedBy: adminUser.email,
     });
-    
+
     return successResponse(res, borrowing, `อัปเดตสถานะเป็น ${status} เรียบร้อย`);
   } catch (error) {
     next(error);

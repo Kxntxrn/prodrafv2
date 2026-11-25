@@ -16,13 +16,24 @@
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 15px rgba(139, 92, 246, 0.15); }
-  50% { box-shadow: 0 0 25px rgba(139, 92, 246, 0.35); }
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.35);
+  }
 }
 
 /* Header & Navbar */
@@ -817,14 +828,38 @@
   text-transform: uppercase;
 }
 
-.action-badge.login { background: var(--color-info-bg); color: var(--color-info); }
-.action-badge.submit { background: rgba(255, 255, 255, 0.05); color: white; }
-.action-badge.approve { background: var(--color-success-bg); color: var(--color-success); }
-.action-badge.reject { background: var(--color-danger-bg); color: var(--color-danger); }
-.action-badge.return { background: var(--color-warning-bg); color: var(--color-warning); }
-.action-badge.create { background: var(--color-primary-glow); color: var(--color-primary-light); }
-.action-badge.update { background: rgba(167, 139, 250, 0.1); color: #c084fc; }
-.action-badge.delete { background: var(--color-danger-bg); color: var(--color-danger); }
+.action-badge.login {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+.action-badge.submit {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+.action-badge.approve {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+.action-badge.reject {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+.action-badge.return {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+.action-badge.create {
+  background: var(--color-primary-glow);
+  color: var(--color-primary-light);
+}
+.action-badge.update {
+  background: rgba(167, 139, 250, 0.1);
+  color: #c084fc;
+}
+.action-badge.delete {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
 
 /* Add/Edit Modal (Inventory) */
 .modal-overlay {
@@ -894,9 +929,15 @@
   animation: fadeIn 0.25s ease-out;
 }
 
-.notification-toast.success { border-left-color: var(--color-success); }
-.notification-toast.error { border-left-color: var(--color-danger); }
-.notification-toast.warning { border-left-color: var(--color-warning); }
+.notification-toast.success {
+  border-left-color: var(--color-success);
+}
+.notification-toast.error {
+  border-left-color: var(--color-danger);
+}
+.notification-toast.warning {
+  border-left-color: var(--color-warning);
+}
 
 /* Grid layout utilities */
 .grid-2 {

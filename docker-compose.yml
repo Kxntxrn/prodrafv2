@@ -4,7 +4,7 @@ services:
     container_name: borrowing_frontend_v2
     restart: always
     ports:
-      - "5174:5173"
+      - '5174:5173'
     volumes:
       - ./frontend:/app
       - /app/node_modules
